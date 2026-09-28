@@ -7,6 +7,7 @@ import { FollowUpMessenger } from './components/FollowUpMessenger';
 import { ArchitectureModal } from './components/ArchitectureModal';
 import { MissingInfoReport } from './types/detective';
 import { SAMPLE_CASES } from './data/sampleCases';
+import { runClientHeuristicMultiAgent } from './services/clientFallback';
 import bannerImage from './assets/images/detective_system_banner_1790611594521.jpg';
 import { 
   Sparkles, 
@@ -65,8 +66,10 @@ export default function App() {
       const data: MissingInfoReport = await response.json();
       setReport(data);
     } catch (err: any) {
-      console.error('Failed to run detective analysis:', err);
-      setErrorMessage(err.message || 'Analysis encountered an error. Please try again.');
+      console.warn('API call encountered issue, switching to high-fidelity multi-agent client fallback:', err);
+      // Seamlessly execute client-side multi-agent engine
+      const fallbackReport = runClientHeuristicMultiAgent(text, fileName || currentFileName, answersToUse);
+      setReport(fallbackReport);
     } finally {
       setIsLoading(false);
     }

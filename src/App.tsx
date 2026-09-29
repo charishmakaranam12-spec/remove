@@ -5,6 +5,7 @@ import { AgentPipelineViewer } from './components/AgentPipelineViewer';
 import { ReportDashboard } from './components/ReportDashboard';
 import { FollowUpMessenger } from './components/FollowUpMessenger';
 import { ArchitectureModal } from './components/ArchitectureModal';
+import { N8nChatbot } from './components/N8nChatbot';
 import { MissingInfoReport } from './types/detective';
 import { SAMPLE_CASES } from './data/sampleCases';
 import { runClientHeuristicMultiAgent } from './services/clientFallback';
@@ -18,7 +19,8 @@ import {
   HelpCircle,
   FileText,
   RotateCcw,
-  ArrowRight
+  ArrowRight,
+  Bot
 } from 'lucide-react';
 
 export default function App() {
@@ -26,6 +28,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [activeSection, setActiveSection] = useState<string>('input');
   const [isArchitectureOpen, setIsArchitectureOpen] = useState<boolean>(false);
+  const [isN8nChatOpen, setIsN8nChatOpen] = useState<boolean>(false);
   const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
   const [currentDocumentText, setCurrentDocumentText] = useState<string>(SAMPLE_CASES[0].content);
   const [currentFileName, setCurrentFileName] = useState<string>('rahul_personal_loan_form.txt');
@@ -113,6 +116,8 @@ export default function App() {
       <Header
         onOpenArchitecture={() => setIsArchitectureOpen(true)}
         onSelectQuickBenchmark={handleSelectQuickBenchmark}
+        onToggleN8nChat={() => setIsN8nChatOpen(!isN8nChatOpen)}
+        isN8nChatOpen={isN8nChatOpen}
         activeSection={activeSection}
         onNavigate={handleNavigate}
       />
@@ -133,6 +138,25 @@ export default function App() {
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-2xl">
                 Monolithic LLMs summarize what is present. The Detective discovers what is <span className="text-indigo-400 font-semibold">missing</span>, determines why each field is required, underwrites decision risks, and drafts targeted inquiries across loan applications, clinical intakes, insurance claims, and enterprise contracts.
               </p>
+
+              {/* Action Buttons with n8n Bot CTA */}
+              <div className="pt-1 flex flex-wrap items-center gap-3">
+                <button
+                  onClick={() => setIsN8nChatOpen(true)}
+                  className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-md shadow-emerald-950/40 transition-colors"
+                >
+                  <Bot className="h-4 w-4" />
+                  <span>Open Live n8n Chatbot</span>
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-300 animate-ping" />
+                </button>
+                <button
+                  onClick={() => setIsArchitectureOpen(true)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-colors"
+                >
+                  <Layers className="h-3.5 w-3.5 text-indigo-400" />
+                  <span>Architecture Blueprint</span>
+                </button>
+              </div>
 
               <div className="pt-2 flex flex-wrap items-center gap-4 text-xs text-slate-400">
                 <div className="flex items-center gap-1.5">
@@ -210,6 +234,7 @@ export default function App() {
               report={report}
               onResolveItem={handleResolveSingleItem}
               onResetResolutions={handleResetResolutions}
+              onOpenN8nChat={() => setIsN8nChatOpen(true)}
             />
           </div>
         )}
@@ -252,6 +277,29 @@ export default function App() {
       <ArchitectureModal
         isOpen={isArchitectureOpen}
         onClose={() => setIsArchitectureOpen(false)}
+      />
+
+      {/* Floating n8n Chat FAB */}
+      {!isN8nChatOpen && (
+        <button
+          onClick={() => setIsN8nChatOpen(true)}
+          className="fixed bottom-5 right-5 z-40 flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-xl shadow-emerald-950/60 hover:shadow-emerald-600/30 transition-all hover:scale-105 active:scale-95 border border-emerald-400/40 group"
+          title="Chat with your live n8n AI Detective"
+        >
+          <div className="relative">
+            <Bot className="h-4 w-4 group-hover:rotate-12 transition-transform" />
+            <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-white animate-ping" />
+          </div>
+          <span>Chat with n8n Detective</span>
+        </button>
+      )}
+
+      {/* Live n8n AI Detective Chatbot Widget */}
+      <N8nChatbot
+        isOpen={isN8nChatOpen}
+        onClose={() => setIsN8nChatOpen(false)}
+        stagedDocumentText={currentDocumentText}
+        stagedCaseName={currentFileName}
       />
     </div>
   );

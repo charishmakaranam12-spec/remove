@@ -724,6 +724,8 @@ function runHeuristicMultiAgent(
   };
 }
 
+const DEFAULT_N8N_WEBHOOK = 'https://charishma321.app.n8n.cloud/webhook/8196a360-cb57-43fc-ab0c-924bf73aa21b/chat';
+
 // API Routes
 app.post('/api/analyze', async (req: Request, res: Response) => {
   try {
@@ -738,6 +740,51 @@ app.post('/api/analyze', async (req: Request, res: Response) => {
   } catch (err: any) {
     console.error('Error in /api/analyze:', err);
     res.status(500).json({ error: err.message || 'Internal server error during analysis' });
+  }
+});
+
+// n8n Chatbot Webhook Proxy
+app.post('/api/n8n/chat', async (req: Request, res: Response) => {
+  try {
+    const { message, sessionId, webhookUrl } = req.body;
+    if (!message || typeof message !== 'string') {
+      res.status(400).json({ error: 'message string is required' });
+      return;
+    }
+
+    const targetUrl = webhookUrl || process.env.N8N_WEBHOOK_URL || DEFAULT_N8N_WEBHOOK;
+    const session = sessionId || `session-${Date.now()}`;
+
+    const n8nResponse = await fetch(targetUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'sendMessage',
+        sessionId: session,
+        chatInput: message,
+      }),
+    });
+
+    if (!n8nResponse.ok) {
+      const errText = await n8nResponse.text();
+      res.status(n8nResponse.status).json({
+        error: `n8n webhook error: ${n8nResponse.status}`,
+        details: errText,
+      });
+      return;
+    }
+
+    const data = await n8nResponse.json();
+    res.json({
+      output: data.output || data.response || data.text || (typeof data === 'string' ? data : JSON.stringify(data)),
+      raw: data,
+      sessionId: session,
+    });
+  } catch (err: any) {
+    console.error('Error proxying to n8n:', err);
+    res.status(500).json({ error: err.message || 'Internal proxy error connecting to n8n' });
   }
 });
 

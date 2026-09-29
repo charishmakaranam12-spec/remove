@@ -1,9 +1,11 @@
 import React from 'react';
-import { Search, Sparkles, BookOpen, Layers } from 'lucide-react';
+import { Search, Sparkles, BookOpen, Layers, Bot } from 'lucide-react';
 
 interface HeaderProps {
   onOpenArchitecture: () => void;
   onSelectQuickBenchmark: () => void;
+  onToggleN8nChat: () => void;
+  isN8nChatOpen: boolean;
   activeSection: string;
   onNavigate: (section: string) => void;
 }
@@ -11,6 +13,8 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   onOpenArchitecture,
   onSelectQuickBenchmark,
+  onToggleN8nChat,
+  isN8nChatOpen,
   activeSection,
   onNavigate,
 }) => {
@@ -61,20 +65,33 @@ export const Header: React.FC<HeaderProps> = ({
         </nav>
 
         {/* Zone 3: Actions */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={onToggleN8nChat}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md border transition-all whitespace-nowrap ${
+              isN8nChatOpen
+                ? 'bg-emerald-600 text-white border-emerald-500 shadow-md shadow-emerald-900/30'
+                : 'bg-emerald-950/40 text-emerald-400 border-emerald-800/80 hover:bg-emerald-900/50'
+            }`}
+          >
+            <Bot className="h-3.5 w-3.5" />
+            <span>n8n Chatbot</span>
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          </button>
+
           <button
             onClick={onSelectQuickBenchmark}
             className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-300 bg-slate-900 border border-slate-700/80 rounded-md hover:bg-slate-800 hover:text-white transition-colors whitespace-nowrap"
           >
             <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-            <span>Rahul's Loan Case</span>
+            <span>Rahul's Case</span>
           </button>
           <button
             onClick={onOpenArchitecture}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-indigo-600 rounded-md hover:bg-indigo-500 shadow-sm transition-colors whitespace-nowrap"
+            className="hidden md:inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-indigo-600 rounded-md hover:bg-indigo-500 shadow-sm transition-colors whitespace-nowrap"
           >
             <Layers className="h-3.5 w-3.5" />
-            <span>Multi-Agent Blueprint</span>
+            <span>Blueprint</span>
           </button>
         </div>
       </div>

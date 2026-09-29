@@ -11,19 +11,22 @@ import {
   Filter,
   Check,
   RotateCcw,
-  Sparkles
+  Sparkles,
+  Bot
 } from 'lucide-react';
 
 interface ReportDashboardProps {
   report: MissingInfoReport;
   onResolveItem: (itemName: string, answer: string) => void;
   onResetResolutions: () => void;
+  onOpenN8nChat?: () => void;
 }
 
 export const ReportDashboard: React.FC<ReportDashboardProps> = ({
   report,
   onResolveItem,
-  onResetResolutions
+  onResetResolutions,
+  onOpenN8nChat
 }) => {
   const [filterPriority, setFilterPriority] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
@@ -120,6 +123,15 @@ export const ReportDashboard: React.FC<ReportDashboardProps> = ({
                 <div className="text-emerald-400">
                   <span className="font-semibold font-mono tabular-nums">{resolvedCount}</span> Resolved
                 </div>
+              )}
+              {onOpenN8nChat && (
+                <button
+                  onClick={onOpenN8nChat}
+                  className="mt-2 w-full inline-flex items-center justify-center gap-1.5 px-2 py-1 text-[10px] font-semibold text-emerald-300 bg-emerald-950/60 border border-emerald-800/80 rounded hover:bg-emerald-900/60 transition-colors"
+                >
+                  <Bot className="h-3 w-3" />
+                  <span>Discuss with n8n</span>
+                </button>
               )}
             </div>
           </div>
